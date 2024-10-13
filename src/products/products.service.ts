@@ -1,63 +1,103 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+
+import {  validate as  isUUID } from "uuid";
 
 @Injectable()
 export class ProductsService {
 
- private readonly logger = new Logger('ProductsService');
+  private readonly logger = new Logger( 'ProductsService' );
 
   constructor(
-    
-    @InjectRepository(Product)
+
+    @InjectRepository( Product )
     private readonly productRepository: Repository<Product>,
 
-  ){}
+  ) { }
 
 
-  async create( createProductDto: CreateProductDto) {
-    
+  async create( createProductDto: CreateProductDto ) {
+
     try {
 
-      const product = await this.productRepository.create(createProductDto);
-      await this.productRepository.save(product);
-      return product;
       
-    } catch (error: any) {
+      const product = await this.productRepository.create( createProductDto );
+      await this.productRepository.save( product );
+      return product;
 
-      this.handleDBExceptions(error)
-     
+    } catch ( error: any ) {
+
+      this.handleDBExceptions( error );
+
+    }
+
+  }
+
+  //todo:paginar
+  findAll( paginationDto: PaginationDto) {
+
+    const { limit = 10, offset = 0 } = paginationDto;
+    
+    const products = this.productRepository.find({
+      take: limit,
+      skip: offset,
+      //todo:relaciones
+    });
+
+    return products;
+  }
+
+  async findOne( term: string ) {
+    
+    let product: Product;
+
+    if ( isUUID( term ) ) {
+      product = await this.productRepository.findOneBy( {id: term} );
+    } else{
+      const queryBuilder = this.productRepository.createQueryBuilder();
+      product = await queryBuilder
+                .where( 'UPPER(slug) =:slug or title =:title', {
+                  slug: term.toUpperCase(),
+                  title: term.toLowerCase()
+                } )
+                .getOne();    
     }
     
+    if ( !product ) {
+      throw new NotFoundException( `Product with ${ term } not found` );
+    }
+    return product;
   }
 
-  findAll() {
-    return `This action returns all products`;
+  update( id: number, updateProductDto: UpdateProductDto ) {
+    return `This action updates a #${ id } product`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
-  }
+  async remove( id: string ) {
+    const product = await this.productRepository.delete( { id } );
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} product`;
-  }
-
-  private handleDBExceptions(error: any) {
-
-    if (error.code === '23505') {
-      throw new BadRequestException(error.detail);
+    if ( product.affected === 0 ) {
+      throw new NotFoundException( `Product with id # ${ id } not found` );
     }
 
-    this.logger.error(error)
-    throw new InternalServerErrorException('Ayuda');
+    return `This action removes a #${ id } product`;
+  }
+
+  private handleDBExceptions( error: any ) {
+
+    if ( error.code === '23505' ) {
+      throw new BadRequestException( error.detail );
+    }
+
+    this.logger.error( error );
+    throw new InternalServerErrorException( 'Ayuda' );
 
   }
+
+ 
 }
