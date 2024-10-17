@@ -26,7 +26,9 @@ export class ProductsService {
     try {
 
       
-      const product = await this.productRepository.create( createProductDto );
+      const product = await this.productRepository.create( {
+        ...createProductDto, 
+      images: []     } );
       await this.productRepository.save( product );
       return product;
 
@@ -74,8 +76,27 @@ export class ProductsService {
     return product;
   }
 
-  update( id: number, updateProductDto: UpdateProductDto ) {
-    return `This action updates a #${ id } product`;
+  async update( id: string, updateProductDto: UpdateProductDto ) {
+    
+    const product = await this.productRepository.preload({
+      id, 
+      ...updateProductDto,
+      images: []
+    })
+    
+    if(!product ) { throw new NotFoundException( `Product with id # ${ id } not found` );}
+    
+    
+    try {
+      
+     await this.productRepository.save( product );
+     return product;
+     
+    } catch (error: any) {
+      this.handleDBExceptions( error );
+    }
+
+    
   }
 
   async remove( id: string ) {

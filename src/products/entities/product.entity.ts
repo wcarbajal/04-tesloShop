@@ -1,4 +1,6 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { IsOptional } from 'class-validator';
+import { ProductImage } from './product-image.entity';
 
 
 @Entity()
@@ -35,24 +37,50 @@ export class Product {
 
   @Column( 'text', {
     array: true,
+
   } )
   sizes: string[];
 
   @Column( 'text', {
-    
+
   } )
   gender: string;
 
+  @Column( 'text', {
+    array: true,
+    default: [],
+  } )
+  tags: string[];
+
+  //image relation
+  @OneToMany(
+    () => ProductImage,
+    ( productImage) => productImage.product,
+    { cascade: true }
+
+  )
+  images?: ProductImage[];
+
   @BeforeInsert()
   checkSlugInsert() {
-    if ( !this.slug) {
-      this.slug = this.title
-       
+    if ( !this.slug ) {
+      this.slug = this.title;
+
     }
     this.slug = this.slug
-    .toLowerCase().
-    replace( /\s+/g, '_' )
-    .replaceAll( "'", '' );
+      .toLowerCase().
+      replace( /\s+/g, '_' )
+      .replaceAll( "'", '' );
   }
-//@BeforeInsert()
+  @BeforeInsert()
+  checkSlugUpdate() {
+
+    this.slug = this.slug
+      .toLowerCase().
+      replace( /\s+/g, '_' )
+      .replaceAll( "'", '' );
+
+
+  }
+
 }

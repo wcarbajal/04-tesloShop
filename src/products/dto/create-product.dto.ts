@@ -29,7 +29,18 @@ export class CreateProductDto {
   @IsArray()
   sizes: string[];
 
+  @IsString( { each: true } )
+  @IsArray()
+  @IsOptional()
+  tags: string[];
+
   @IsIn( [ 'men', 'woman', 'kid', 'unisex' ] )
   gender: string;
+
+
+  @IsString( { each: true } )
+  @IsArray()
+  @IsOptional()
+  images?: string[];
 
 }
