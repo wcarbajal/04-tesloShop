@@ -12,5 +12,9 @@ import { Product, ProductImage } from './entities';
   imports: [
     TypeOrmModule.forFeature([Product, ProductImage]), // Import the Product entity from your entities folder
   ], 
+  exports: [ 
+    ProductsService, 
+    TypeOrmModule
+   ] // Make the ProductsService available for other modules to use.
 })
 export class ProductsModule {}
