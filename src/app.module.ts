@@ -5,6 +5,7 @@ import { ProductsModule } from './products/products.module';
 import { CommonModule } from './common/common.module';
 import { ProductImage } from './products/entities/product-image.entity';
 import { SeedModule } from './seed/seed.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { SeedModule } from './seed/seed.module';
 
     ProductsModule,   
 
-    CommonModule, SeedModule
+    CommonModule, SeedModule, FilesModule
   ],
   controllers: [],
   providers: [],
