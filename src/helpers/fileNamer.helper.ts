@@ -12,7 +12,7 @@ export const fileNamer = ( req: Express.Request, file: Express.Multer.File, call
 
 
   const fileName = `${nombre}.${ext}`; */
-  callback( null, `${ uuid() }-${ file.originalname.split( '.' )[ 0 ] }.${ ext }` );
+  callback( null, `${ uuid() }.${ ext }` );
 
 
 
