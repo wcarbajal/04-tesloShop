@@ -7,10 +7,16 @@ export class User {
   @PrimaryGeneratedColumn( 'uuid' )
   id: string;
 
-  @Column( 'text' )
+  @Column( 'text', {
+    unique: true,    
+  } )
   email: string;
 
-  @Column( 'text' )
+  @Column( 'text', 
+    {
+      select: false
+    }
+   )
   password: string;
 
   @Column( 'text' )
@@ -26,9 +32,10 @@ export class User {
 
   @Column( 'text', {
     array: true,
+    default: ['user']
 
   } )
-  roles?: string[];
+  roles: string[];
 
 
 }
