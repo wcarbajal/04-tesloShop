@@ -5,8 +5,9 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from "bcrypt";
 import { LoginUserDto } from './dto';
-import { JwtPayload } from './strategies/jwt-payload.interface';
+
 import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +39,7 @@ export class AuthService {
 
       return { 
         ...user,
-        token: this.getJwtToken( {email: user.email})
+        token: this.getJwtToken( {id: user.id})
       };
       //TODO: retornar el JWT de acceso
 
@@ -56,7 +57,7 @@ export class AuthService {
     const user = await this.userRepository.findOne(
       {
         where: { email },
-        select: { email: true, password: true }
+        select: { email: true, password: true, id: true }
       }
     );
 
@@ -69,7 +70,7 @@ export class AuthService {
 
     return { 
       ...user,
-      token: this.getJwtToken( {email: user.email})
+      token: this.getJwtToken( {id: user.id})
     };
     //TODO: retornar el JWT de acceso
 

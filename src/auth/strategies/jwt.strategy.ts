@@ -1,7 +1,7 @@
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { User } from '../entities/user.entity';
-import { JwtPayload } from './jwt-payload.interface';
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,9 +29,9 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
 
 
 
-    const { email } = payload;
+    const { id } = payload;
 
-    const user = await this.userRepository.findOneBy( { email } );
+    const user = await this.userRepository.findOneBy( { id } );
 
     if ( !user ) {
       throw new UnauthorizedException( 'Tokeon no valido ' );
